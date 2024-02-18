@@ -50,6 +50,15 @@
     }                                         \
     c;                                        \
   })
+#define UNBUFFER                \
+  ({                            \
+    if (c != -1) {              \
+      if (unget) {              \
+        unget(c, arg);          \
+      }                         \
+      fpbuf[--fpbufcur] = '\0'; \
+    }                           \
+  })
 
 /**
  * String / file / stream decoder.
@@ -373,6 +382,7 @@ int __vcscanf(int callback(void *),    //
                 }
                 goto GotFloatingPointNumber;
               } else {
+                UNBUFFER;
                 goto GotFloatingPointNumber;
               }
             } else {
@@ -410,12 +420,7 @@ int __vcscanf(int callback(void *),    //
                   goto Done;
                 }
               } else {
-                if (c != -1) {
-                  if (unget) {
-                    unget(c, arg);
-                  }
-                  fpbuf[--fpbufcur] = '\0';
-                }
+                UNBUFFER;
                 goto GotFloatingPointNumber;
               }
             } else {
@@ -468,12 +473,7 @@ int __vcscanf(int callback(void *),    //
         Continue:
           continue;
         Break:
-          if (c != -1) {
-            if (unget) {
-              unget(c, arg);
-            }
-            fpbuf[--fpbufcur] = '\0';
-          }
+          UNBUFFER;
           break;
         } while ((c = BUFFER) != -1);
       GotFloatingPointNumber:
