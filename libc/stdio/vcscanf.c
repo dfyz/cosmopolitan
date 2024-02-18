@@ -410,8 +410,11 @@ int __vcscanf(int callback(void *),    //
                   goto Done;
                 }
               } else {
-                if (c != -1 && unget) {
-                  unget(c, arg);
+                if (c != -1) {
+                  if (unget) {
+                    unget(c, arg);
+                  }
+                  fpbuf[--fpbufcur] = '\0';
                 }
                 goto GotFloatingPointNumber;
               }
@@ -465,13 +468,24 @@ int __vcscanf(int callback(void *),    //
         Continue:
           continue;
         Break:
-          if (c != -1 && unget) {
-            unget(c, arg);
+          if (c != -1) {
+            if (unget) {
+              unget(c, arg);
+            }
+            fpbuf[--fpbufcur] = '\0';
           }
           break;
         } while ((c = BUFFER) != -1);
       GotFloatingPointNumber:
-        fp = strtod((char *)fpbuf, NULL);
+        char *ep;
+        fp = strtod((char *)fpbuf, &ep);
+        bool valid = ep == (char *)fpbuf + fpbufcur;
+        free(fpbuf);
+        fpbuf = NULL;
+        fpbufcur = fpbufsize = 0;
+        if (!valid) {
+          goto Done;
+        }
         if (!discard) {
           ++items;
           void *out = va_arg(va, void *);
@@ -481,9 +495,6 @@ int __vcscanf(int callback(void *),    //
             *(double *)out = (double)fp;
           }
         }
-        free(fpbuf);
-        fpbuf = NULL;
-        fpbufcur = fpbufsize = 0;
         continue;
       ReportConsumed:
         n_ptr = va_arg(va, int *);
