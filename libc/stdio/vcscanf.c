@@ -379,6 +379,7 @@ int __vcscanf(int callback(void *),    //
                 } while ((c = BUFFER) != -1 && c != ')');
                 if (c == ')') {
                   c = BUFFER;
+                  UNBUFFER;
                 }
                 goto GotFloatingPointNumber;
               } else {
