@@ -478,9 +478,14 @@ int __vcscanf(int callback(void *),    //
           break;
         } while ((c = BUFFER) != -1);
       GotFloatingPointNumber:
-        char *ep;
-        fp = strtod((char *)fpbuf, &ep);
-        bool valid = ep == (char *)fpbuf + fpbufcur;
+        /* An empty buffer can't be a valid float; don't even bother parsing. */
+        bool valid = fpbufcur > 0;
+        if (valid) {
+          char *ep;
+          fp = strtod((char *)fpbuf, &ep);
+          /* We should have parsed the whole buffer. */
+          valid = ep == (char *)fpbuf + fpbufcur;
+        }
         free(fpbuf);
         fpbuf = NULL;
         fpbufcur = fpbufsize = 0;
