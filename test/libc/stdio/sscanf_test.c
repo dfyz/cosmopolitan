@@ -394,6 +394,20 @@ TEST(sscanf, floating_point_infinity_double_precision) {
   EXPECT_TRUE(isinf(g));
 }
 
+TEST(sscanf, floating_point_invalid) {
+  float dummy;
+  EXPECT_EQ(0, sscanf("junk", "%f", &dummy));
+  EXPECT_EQ(0, sscanf("e9", "%f", &dummy));
+  EXPECT_EQ(0, sscanf("-e9", "%f", &dummy));
+}
+
+TEST(sscanf, floating_point_invalid_double_precision) {
+  double dummy;
+  EXPECT_EQ(0, sscanf("junk", "%lf", &dummy));
+  EXPECT_EQ(0, sscanf("e9", "%lf", &dummy));
+  EXPECT_EQ(0, sscanf("-e9", "%lf", &dummy));
+}
+
 TEST(sscanf, floating_point_documentation_examples) {
   float a = 666.666f, b = a, c = b, d = c, e = d, f = e, g = f, h = g, i = h,
         j = i;
