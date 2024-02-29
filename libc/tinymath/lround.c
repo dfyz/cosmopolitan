@@ -25,6 +25,10 @@ long lround(double x) {
   return round(x);
 }
 
+long long llround(double x) {
+  return round(x);
+}
+
 #if LDBL_MANT_DIG == 53 && LDBL_MAX_EXP == 1024
 __weak_reference(lround, lroundl);
 #endif
